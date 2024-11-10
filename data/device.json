@@ -1,0 +1,26 @@
+{
+  "data": [
+    {
+      "device_id": "2d88e2c0",
+      "device_name": "MI 8 Lite",
+      "app": [
+        {
+          "id": "com.zhiliaoapp.musically",
+          "name": "Musically",
+          "status": "Connected"
+        }
+      ]
+    },
+    {
+      "device_id": "2ad21914df0d7ece",
+      "device_name": "SM-A920F",
+      "app": [
+        {
+          "id": "com.zhiliaoapp.musically",
+          "name": "Musically",
+          "status": "Connected"
+        }
+      ]
+    }
+  ]
+}

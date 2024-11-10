@@ -1,0 +1,1138 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Facebook Management Tool</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/tailwindcss@2/dist/tailwind.min.css"
+      rel="stylesheet"
+    />
+    <style>
+      .sidebar-icon {
+        width: 24px;
+        height: 24px;
+      }
+      .sidebar-icon {
+        width: 24px;
+        height: 24px;
+      }
+      .drag-area {
+        border: 2px dashed #1d4ed8;
+        min-height: 200px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-direction: column;
+      }
+      .drag-area.active {
+        border: 2px solid #1d4ed8;
+      }
+    </style>
+  </head>
+  <body class="bg-gray-100 font-sans">
+    <div class="flex h-screen">
+      <!-- Sidebar -->
+      <div class="w-64 bg-white shadow-md">
+        <div class="p-4">
+          <h2 class="text-2xl font-bold text-gray-800">Facebook Manager</h2>
+        </div>
+        <nav class="mt-6" id="sidebar">
+          <!-- Sidebar items will be added here dynamically -->
+        </nav>
+      </div>
+
+      <!-- Main content -->
+      <div class="flex-1 flex flex-col overflow-hidden">
+        <!-- Toolbar -->
+        <div class="bg-white shadow-md p-4 flex justify-between items-center">
+          <div class="flex space-x-2">
+            <button
+              id="add_device_button"
+              class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+            >
+              <i class="fas fa-plus mr-2"></i> Thêm
+            </button>
+            <button
+              id="start-button"
+              class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
+            >
+              <i class="fas fa-play mr-2"></i> Chạy
+            </button>
+            <button
+              id="stop-button"
+              class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"
+            >
+              <i class="fas fa-stop mr-2"></i> Dừng
+            </button>
+            <button
+              id="reload-button"
+              class="bg-yellow-500 text-white px-4 py-2 rounded hover:bg-yellow-600"
+            >
+              <i class="fas fa-sync mr-2"></i> Làm mới
+            </button>
+          </div>
+        </div>
+
+        <!-- Empty State UI (shown when no groups) -->
+        <div id="emptyState" class="p-4 space-y-4">
+          <div id="dragArea" class="drag-area rounded-lg p-4 text-center">
+            <p class="text-gray-600 mb-4">Kéo và thả file hoặc</p>
+            <button
+              class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+            >
+              Chọn File
+            </button>
+            <input type="file" id="fileInput" accept=".txt,.csv" />
+          </div>
+          <div class="text-center">
+            <p class="text-gray-600 mb-2">hoặc</p>
+            <button
+              id="manualInputBtn"
+              class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
+            >
+              Nhập Thủ Công
+            </button>
+          </div>
+        </div>
+
+        <!-- input thread -->
+        <div
+          id="InputThreadModal"
+          class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden"
+        >
+          <div class="min-h-screen px-4 flex justify-center items-center">
+            <div class="bg-white p-6 rounded-lg shadow-xl w-96">
+              <h2 class="text-xl font-semibold mb-4">Nhập luồng để chạy</h2>
+              <input
+                type="number"
+                placeholder="Nhập luồng để chạy"
+                class="w-full mb-3 p-2 border rounded"
+                id="InputThread"
+              />
+              <div class="flex justify-end space-x-2">
+                <button
+                  id="saveThreadBtn"
+                  class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+                >
+                  Chạy
+                </button>
+                <button
+                  id="closeThreadBtn"
+                  class="bg-gray-300 px-4 py-2 rounded hover:bg-gray-400"
+                >
+                  Đóng
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Manual Input Modal -->
+        <div
+          id="manualInputModal"
+          class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden"
+        >
+          <div class="min-h-screen px-4 flex justify-center items-center">
+            <div class="bg-white p-6 rounded-lg shadow-xl w-96">
+              <h2 class="text-xl font-semibold mb-4">
+                Nhập Thông Tin Tài Khoản
+              </h2>
+              <input
+                type="text"
+                placeholder="Tên tài khoản"
+                class="w-full mb-3 p-2 border rounded"
+                id="manualUsername"
+              />
+              <input
+                type="password"
+                placeholder="Mật khẩu"
+                class="w-full mb-3 p-2 border rounded"
+                id="manualPassword"
+              />
+              <input
+                type="text"
+                placeholder="Cookie"
+                class="w-full mb-4 p-2 border rounded"
+                id="manualCookie"
+              />
+              <input
+                type="text"
+                placeholder="Proxy (tùy chọn)"
+                class="w-full mb-4 p-2 border rounded"
+                id="manualProxy"
+              />
+
+              <div class="flex justify-end space-x-2">
+                <button
+                  id="saveManualBtn"
+                  class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+                >
+                  Lưu
+                </button>
+                <button
+                  id="closeManualBtn"
+                  class="bg-gray-300 px-4 py-2 rounded hover:bg-gray-400"
+                >
+                  Đóng
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- Content area -->
+
+        <div id="tree_account" class="flex-1 overflow-auto p-6 hidden">
+          <table
+            id="accountTable"
+            class="min-w-full bg-white shadow-md rounded-lg overflow-hidden"
+          >
+            <thead class="bg-gray-200 text-gray-700">
+              <tr>
+                <th class="py-3 px-4 text-left"></th>
+                <th class="py-3 px-4 text-left">STT</th>
+                <th class="py-3 px-4 text-left">Chrome</th>
+                <th class="py-3 px-4 text-left">ID/Email</th>
+                <th class="py-3 px-4 text-left">Password</th>
+                <th class="py-3 px-4 text-left">Cookie</th>
+                <th class="py-3 px-4 text-left">Proxy</th>
+                <th class="py-3 px-4 text-left">Note</th>
+                <th class="py-3 px-4 text-left">Status</th>
+                <th class="py-3 px-4 text-left">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="accountsTableBody" class="text-gray-600">
+              <!-- Account data will be added here dynamically -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <div id="name_group" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden">
+      <div class="min-h-screen px-4 flex justify-center items-center">
+        <div class="bg-white p-6 rounded-lg shadow-xl w-96 relative">
+          <h2 class="text-xl font-semibold mb-4 text-gray-800 text-center">
+            Tên Nhóm Tài Khoản
+          </h2>
+          <input
+            id="name_group_account"
+            type="text"
+            placeholder="Tên nhóm tài khoản"
+            class="w-full mb-4 p-2.5 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
+          />
+          <div class="flex justify-center space-x-3">
+            <!-- Changed to justify-center -->
+            <button
+              id="saveAccountBtn_name_group_account"
+              class="px-6 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+            >
+              Lưu
+            </button>
+            <button
+              id="closeModalBtn_name_group_account"
+              class="px-6 py-2 bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2"
+            >
+              Đóng
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- Add Account Button (Bottom Right) -->
+    <div id="Add_Account_Button" class="absolute bottom-4 right-4">
+      <div class="relative inline-block">
+        <button
+          id="addAccountBtn"
+          class="bg-blue-500 text-white px-4 py-2 rounded-full hover:bg-blue-600"
+        >
+          Thêm Account +
+        </button>
+        <div
+          id="addAccountDropdown"
+          class="hidden absolute right-0 bottom-full mb-2 bg-white rounded-lg shadow-xl"
+        >
+          <button
+            class="block w-full text-left px-4 py-2 hover:bg-gray-100"
+            id="importFileBtn"
+          >
+            Thêm từ tệp
+          </button>
+          <button
+            class="block w-full text-left px-4 py-2 hover:bg-gray-100"
+            id="manualAddBtn"
+          >
+            Nhập thủ công
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Context Menu -->
+    <div
+      id="contextMenu"
+      class="hidden absolute bg-white border border-gray-300 shadow-lg rounded-md"
+    >
+      <ul class="py-2">
+        <li
+          class="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+          data-action="load-list"
+        >
+          Load Danh Sách
+        </li>
+        <li
+          class="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+          data-action="login-facebook"
+          id="login-facebook"
+        >
+          Login Account facebook
+        </li>
+        <li
+          class="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+          data-action="select-row"
+        >
+          Chọn Dòng
+        </li>
+        <li
+          class="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+          data-action="copy"
+        >
+          Copy
+        </li>
+        <li
+          class="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+          data-action="update-account"
+        >
+          Update Account
+        </li>
+        <li
+          class="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+          data-action="transfer-account"
+        >
+          Chuyển account sang LD khác
+        </li>
+        <li
+          class="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+          data-action="facebook-info"
+        >
+          Info Facebook
+        </li>
+        <li
+          class="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+          data-action="login"
+        >
+          Login
+        </li>
+        <li
+          class="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+          data-action="open-tiktok"
+        >
+          Open App TikTok
+        </li>
+        <li
+          id="runtuongtac"
+          class="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+          data-action="run-interactions"
+        >
+          Chạy Tương tác
+        </li>
+        <li
+          class="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+          data-action="interact-tiktoker"
+        >
+          Tương tác ID TikToker
+        </li>
+        <li
+          class="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+          data-action="create-video"
+        >
+          Create Video
+        </li>
+        <li
+          class="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+          data-action="follow"
+        >
+          Follow
+        </li>
+        <li
+          class="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+          data-action="seed-video"
+        >
+          Seeding Video
+        </li>
+        <li
+          class="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+          data-action="change-name"
+        >
+          Đổi tên TikTok
+        </li>
+        <li
+          class="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+          data-action="delete-account"
+        >
+          Xoá Tài Khoản
+        </li>
+        <li
+          class="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+          data-action="livestream"
+        >
+          Livestream
+        </li>
+        <li
+          class="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+          data-action="delete-ld-data"
+        >
+          Delete Data ld player
+        </li>
+      </ul>
+    </div>
+
+    <!-- Account Edit Modal -->
+    <div
+      id="accountModal"
+      class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden justify-center items-center"
+    >
+      <div class="bg-white p-4 rounded-lg">
+        <h2 class="text-lg font-semibold mb-2">Thông tin Tài khoản</h2>
+        <input
+          id="accountUsername"
+          type="text"
+          placeholder="Tên đăng nhập"
+          class="w-full mb-2 p-2 border rounded"
+        />
+        <input
+          id="accountPassword"
+          type="password"
+          placeholder="Mật khẩu"
+          class="w-full mb-2 p-2 border rounded"
+        />
+        <input
+          id="accountProxy"
+          type="text"
+          placeholder="Proxy (tùy chọn)"
+          class="w-full mb-2 p-2 border rounded"
+        />
+        <div class="flex justify-end">
+          <button
+            id="saveAccountBtn"
+            class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 mr-2"
+          >
+            Lưu
+          </button>
+          <button
+            id="closeModalBtn"
+            class="bg-gray-300 px-4 py-2 rounded hover:bg-gray-400"
+          >
+            Đóng
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      const { ipcRenderer } = require("electron");
+      const fs = require("fs");
+
+      // DOM Elements
+      const sidebar = document.getElementById("sidebar");
+      const accountsTableBody = document.getElementById("accountsTableBody");
+      const contextMenu = document.getElementById("contextMenu");
+      const accountModal = document.getElementById("accountModal");
+      const create_name_group = document.getElementById("name_group");
+      const Add_Account_Button = document.getElementById("Add_Account_Button");
+      const tree_account = document.getElementById("tree_account");
+      const manualInputModal = document.getElementById("manualInputModal");
+      const dragArea = document.getElementById("dragArea");
+      const outputArea = document.createElement("pre");
+      const ModalThread = document.getElementById("InputThreadModal");
+      outputArea.className = "mt-4 p-4 bg-gray-100 rounded";
+
+      // Buttons
+      const addDeviceButton = document.getElementById("add_device_button");
+      const startButton = document.getElementById("start-button");
+      const stopButton = document.getElementById("stop-button");
+      const reloadButton = document.getElementById("reload-button");
+      const saveAccountBtn = document.getElementById("saveAccountBtn");
+      const closeModalBtn = document.getElementById("closeModalBtn");
+      const runInteractionsBtn = document.getElementById("runtuongtac");
+      const login_facebook = document.getElementById("login-facebook");
+      const manualAddBtn = document.getElementById("manualAddBtn");
+      const saveAccountBtn_name_group_account = document.getElementById(
+        "saveAccountBtn_name_group_account"
+      );
+      const importFileBtn = document.getElementById("importFileBtn");
+
+      document.body.appendChild(outputArea);
+
+      // Prevent default drag behaviors
+      ["dragenter", "dragover", "dragleave", "drop"].forEach((eventName) => {
+        dragArea.addEventListener(eventName, (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+        });
+      });
+
+      // Add visual feedback when dragging
+      ["dragenter", "dragover"].forEach((eventName) => {
+        dragArea.addEventListener(eventName, () => {
+          dragArea.classList.add("bg-blue-100");
+          dragArea.classList.add("border-blue-500");
+        });
+      });
+
+      // Remove visual feedback when drag ends
+      ["dragleave", "drop"].forEach((eventName) => {
+        dragArea.addEventListener(eventName, () => {
+          dragArea.classList.remove("bg-blue-100");
+          dragArea.classList.remove("border-blue-500");
+        });
+      });
+
+      // Handle file drop
+      dragArea.addEventListener("drop", (e) => {
+        const sidebarLinks = document.querySelectorAll("#sidebar a");
+
+        let selectedGroup = "";
+        sidebarLinks.forEach((link) => {
+          if (link.classList.contains("bg-gray-200")) {
+            selectedGroup = link.textContent.trim();
+          }
+        });
+
+        if (!selectedGroup) {
+          alert("Vui lòng chọn nhóm tài khoản trước khi thêm!");
+          return;
+        }
+        const files = e.dataTransfer.files;
+
+        if (files.length > 0) {
+          const file = files[0]; // Get the first file
+
+          // Log file information
+          console.log("File Details:", {
+            name: file.name,
+            type: file.type,
+            size: `${(file.size / 1024).toFixed(2)} KB`,
+            lastModified: new Date(file.lastModified).toLocaleString(),
+          });
+
+          // Read file content
+          const reader = new FileReader();
+
+          reader.onload = (event) => {
+            const content = event.target.result;
+
+            try {
+              // Try to parse as JSON
+              const jsonData = JSON.parse(content);
+              outputArea.textContent = `File Content (JSON):\n${JSON.stringify(
+                jsonData,
+                null,
+                2
+              )}`;
+              data = {
+                name_group: selectedGroup,
+                data: jsonData,
+              };
+              ipcRenderer.send("save_file_account", data);
+              console.log("Parsed JSON Data:", data);
+            } catch (e) {
+              let new_data = [];
+
+              content.split("\n").forEach((line) => {
+                if (line.trim()) {
+                  // Tách dữ liệu từ dòng, mặc định cookie và proxy là rỗng
+                  let [user, password, cookie = "", proxy = ""] =
+                    line.split("|");
+
+                  new_data.push({
+                    user: user.trim(), // Loại bỏ khoảng trắng
+                    password: password.trim(),
+                    cookie: cookie.trim(), // Trim cookie nếu có
+                    proxy: proxy.trim(), // Trim proxy nếu có
+                    status: "disconnected",
+                  });
+                }
+              });
+              data = {
+                name_group: selectedGroup,
+                data: new_data,
+              };
+
+              // console.log(data);
+              ipcRenderer.send("save_file_account", data);
+              // console.log("File Content (Text):", data);
+              // outputArea.textContent = `File Content (Text):\n${data}`;
+            }
+          };
+
+          reader.onerror = (error) => {
+            console.error("Error reading file:", error);
+            outputArea.textContent = `Error reading file: ${error.message}`;
+          };
+
+          // Read the file as text
+          reader.readAsText(file);
+        }
+      });
+
+      // Handle file input through button
+      const fileInput = document.getElementById("fileInput");
+      fileInput.addEventListener("change", (e) => {
+        const file = e.target.files[0];
+        if (file) {
+          // Log file information
+          console.log("File Details:", {
+            name: file.name,
+            type: file.type,
+            size: `${(file.size / 1024).toFixed(2)} KB`,
+            lastModified: new Date(file.lastModified).toLocaleString(),
+          });
+
+          // Read file content
+          const reader = new FileReader();
+
+          reader.onload = (event) => {
+            const content = event.target.result;
+
+            try {
+              // Try to parse as JSON
+              const jsonData = JSON.parse(content);
+              console.log("Parsed JSON Data:", jsonData);
+              outputArea.textContent = `File Content (JSON):\n${JSON.stringify(
+                jsonData,
+                null,
+                2
+              )}`;
+            } catch (e) {
+              // If not JSON, display as text
+              console.log("File Content (Text):", content);
+              outputArea.textContent = `File Content (Text):\n${content}`;
+            }
+          };
+
+          reader.onerror = (error) => {
+            console.error("Error reading file:", error);
+            outputArea.textContent = `Error reading file: ${error.message}`;
+          };
+
+          // Read the file as text
+          reader.readAsText(file);
+        }
+      });
+
+      function getSelectedAccounts() {
+        const sidebarLinks = document.querySelectorAll("#sidebar a");
+
+        let selectedGroup = "";
+        sidebarLinks.forEach((link) => {
+          if (link.classList.contains("bg-gray-200")) {
+            selectedGroup = link.textContent.trim();
+          }
+        });
+
+        const checkboxes = document.querySelectorAll(
+          '#accountTable input[type="checkbox"]'
+        );
+        const selectedAccounts = [];
+
+        checkboxes.forEach((checkbox) => {
+          if (checkbox.checked) {
+            const row = checkbox.closest("tr");
+            const cookieValue =
+              row.cells[5].getAttribute("data-fullcookie") ||
+              row.cells[5].innerText;
+
+            // Kiểm tra nếu cookie không tồn tại hoặc rỗng, hiển thị thông báo và dừng function
+            if (!cookieValue) {
+              alert(
+                "Một hoặc nhiều tài khoản được chọn không có cookie. Vui lòng kiểm tra lại."
+              );
+              return;
+            }
+
+            const accountData = {
+              group: selectedGroup,
+              chrome: row.cells[2].innerText,
+              uid: row.cells[3].innerText,
+              password: row.cells[4].innerText,
+              cookie: cookieValue,
+              proxy: row.cells[6].innerText,
+              status: row.cells[7].innerText,
+              thread: document.getElementById("InputThread").value,
+            };
+            selectedAccounts.push(accountData);
+          }
+        });
+
+        return selectedAccounts;
+      }
+
+      // Functions
+      function loadGroupData(accounts, groupName) {
+        accountsTableBody.innerHTML = "";
+        try {
+          // Hide empty state UI elements
+          document.getElementById("emptyState").classList.add("hidden");
+
+          // Configure table visibility and container layout
+          tree_account.classList.remove("hidden");
+          tree_account.classList.add("flex-1", "overflow-auto");
+
+          // Validate accounts data
+          if (!Array.isArray(accounts) || accounts.length === 0) {
+            throw new Error("Invalid or empty accounts data");
+          }
+
+          // If valid accounts data is present, hide Add_Account_Button
+
+          // Function to shorten cookie display
+          function shortenCookie(cookie, maxLength = 15) {
+            return cookie.length > maxLength
+              ? cookie.slice(0, 7) + "..." + cookie.slice(-7)
+              : cookie;
+          }
+
+          // Generate table rows
+          accounts.forEach((account, index) => {
+            const row = document.createElement("tr");
+            row.classList.add(
+              "hover:bg-gray-100",
+              "border-b",
+              "border-gray-200"
+            );
+            row.dataset.account = JSON.stringify(account);
+            row.dataset.rowId = `row-${index}`;
+            row.dataset.groupName = groupName;
+
+            // Create row with shortened cookie display but keep full cookie in data attribute
+            row.innerHTML = `
+                <td class="py-2 px-4 align-middle">
+                    <input type="checkbox" class="form-checkbox h-4 w-4" name="accountSelection" value="${index}" />
+                </td>
+                <td class="py-2 px-4 align-middle">${index + 1}</td>
+                <td class="py-2 px-4 align-middle">${account.chrome || ""}</td>
+                <td class="py-2 px-4 align-middle">${account.user || ""}</td>
+                <td class="py-2 px-4 align-middle">${
+                  account.password ? "••••••••" : ""
+                }</td>
+                <td class="py-2 px-4 align-middle" data-fullcookie="${
+                  account.cookie || ""
+                }">
+                    <span title="${account.cookie || ""}">${shortenCookie(
+              account.cookie || ""
+            )}</span>
+                </td>
+                <td class="py-2 px-4 align-middle">${account.proxy || ""}</td>
+                <td class="py-2 px-4 align-middle">${account.note || ""}</td>
+                <td class="py-2 px-4 align-middle">${account.status || ""}</td>
+                <td class="py-2 px-4 align-middle space-x-2">
+                    <button class="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600 text-sm" onclick="editAccount(this)">Sửa</button>
+                    <button class="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600 text-sm" onclick="deleteAccount(this)">Xóa</button>
+                    <button class="bg-green-500 text-white px-3 py-1 rounded hover:bg-green-600 text-sm" onclick="openWeb(this)">Open Web</button>
+                </td>
+            `;
+            accountsTableBody.appendChild(row);
+          });
+
+          // Ensure table is properly positioned
+          const accountTable = document.getElementById("accountTable");
+          accountTable.classList.add("mt-0");
+        } catch (error) {
+          console.error("Đã xảy ra lỗi:", error.message);
+          // Show empty state when there's an error
+          document.getElementById("emptyState").classList.remove("hidden");
+          tree_account.classList.add("hidden");
+          Add_Account_Button.classList.remove("hidden");
+        }
+      }
+
+      function addGroup() {
+        sidebar.innerHTML = "";
+        fetch("data/group_accounts.json")
+          .then((response) => response.json())
+          .then((jsonData) => {
+            jsonData.data.forEach((group) => {
+              const link = document.createElement("a");
+              link.href = "#";
+              link.className =
+                "flex items-center px-4 py-2 text-gray-700 hover:bg-gray-200";
+              link.innerHTML = `
+          <img src="Image/facebook.png" alt="TikTok" class="sidebar-icon mr-3" />
+          ${group.name_group}
+        `;
+
+              // Thêm xử lý click cho link
+              link.addEventListener("click", () => {
+                // Xóa highlight của tất cả các link khác
+                document.querySelectorAll("#sidebar a").forEach((l) => {
+                  l.classList.remove("bg-gray-200");
+                });
+
+                // Highlight link được chọn
+                link.classList.add("bg-gray-200");
+
+                loadGroupData(group.data, group.name_group);
+              });
+
+              sidebar.appendChild(link);
+            });
+          })
+          .catch((error) => console.error("Error loading JSON data:", error));
+      }
+
+      function showContextMenu(e) {
+        e.preventDefault();
+        contextMenu.style.display = "block";
+        contextMenu.style.left = `${e.pageX}px`;
+        contextMenu.style.top = `${e.pageY}px`;
+      }
+
+      function hideContextMenu() {
+        contextMenu.style.display = "none";
+      }
+
+      function openWeb(button) {
+        try {
+          const row = button.closest("tr");
+          if (!row) throw new Error("Could not find parent row element");
+
+          const accountData = row.dataset.account;
+          if (!accountData) throw new Error("No account data found in dataset");
+
+          const parsedAccountData = JSON.parse(accountData);
+          console.log("Opening web:", parsedAccountData);
+
+          // Cập nhật UI để show trạng thái đang xử lý
+          const statusCell = row.querySelector(".status-cell");
+          if (statusCell) {
+            statusCell.textContent = "Đang xử lý";
+          }
+
+          ipcRenderer.send("open_web", [parsedAccountData]);
+        } catch (error) {
+          console.error("Error in openWeb:", error);
+
+          // Show error in UI
+          const statusCell = row?.querySelector(".status-cell");
+          if (statusCell) {
+            statusCell.textContent = "Lỗi: " + error.message;
+          }
+        }
+      }
+
+      function editAccount(button) {
+        const row = button.closest("tr");
+        const accountData = JSON.parse(row.dataset.account);
+        const groupName = row.dataset.groupName;
+        console.log("Editing account:", accountData);
+        console.log("Group name:", groupName);
+
+        // Lưu trữ tham chiếu đến hàng đang được chỉnh sửa
+        accountModal.dataset.editingRowId = row.dataset.rowId;
+
+        // Hiển thị dữ liệu tài khoản trong modal
+        document.getElementById("accountUsername").value =
+          accountData.user || "";
+        document.getElementById("accountPassword").value =
+          accountData.password || "";
+        document.getElementById("accountProxy").value = accountData.proxy || "";
+
+        // Hiển thị modal
+        accountModal.classList.remove("hidden");
+        accountModal.classList.add("flex");
+      }
+
+      function deleteAccount(button) {
+        const row = button.closest("tr");
+        const accountData = JSON.parse(row.dataset.account);
+        console.log("Deleting account:", accountData);
+        if (
+          confirm(`Bạn có chắc chắn muốn xóa tài khoản ${accountData.user}?`)
+        ) {
+          // Thực hiện logic xóa tài khoản ở đây
+          row.remove(); // Xóa dòng khỏi bảng
+        }
+      }
+
+      addAccountBtn.addEventListener("click", () => {
+        addAccountDropdown.classList.toggle("hidden");
+      });
+
+      importFileBtn.addEventListener("click", () => {
+        document.getElementById("emptyState").classList.remove("hidden");
+        tree_account.classList.add("hidden");
+      });
+      // open manualAddBtn
+      manualAddBtn.addEventListener("click", () => {
+        manualInputModal.classList.remove("hidden");
+      });
+      // Close dropdown when clicking outside
+      document.addEventListener("click", (e) => {
+        if (!addAccountBtn.contains(e.target)) {
+          addAccountDropdown.classList.add("hidden");
+        }
+      });
+
+      manualInputBtn.addEventListener("click", () => {
+        manualInputModal.classList.remove("hidden");
+      });
+
+      document
+        .getElementById("closeManualBtn")
+        .addEventListener("click", () => {
+          manualInputModal.classList.add("hidden");
+        });
+
+      document.getElementById("saveManualBtn").addEventListener("click", () => {
+        const username = document.getElementById("manualUsername").value;
+        const password = document.getElementById("manualPassword").value;
+        const cookie = document.getElementById("manualCookie").value;
+        const proxy = document.getElementById("manualProxy").value;
+
+        // Lấy tất cả các link trong sidebar
+        const sidebarLinks = document.querySelectorAll("#sidebar a");
+
+        // Lấy tên group của link được chọn (có background màu xám)
+        let selectedGroup = "";
+        sidebarLinks.forEach((link) => {
+          if (link.classList.contains("bg-gray-200")) {
+            selectedGroup = link.textContent.trim();
+          }
+        });
+
+        if (!username || !password) {
+          alert("Vui lòng nhập đầy đủ thông tin tài khoản!");
+          return;
+        }
+
+        if (!selectedGroup) {
+          alert("Vui lòng chọn nhóm tài khoản trước khi thêm!");
+          return;
+        }
+
+        // Process the manual input data
+        const accountData = {
+          user: username,
+          password: password,
+          cookie: cookie,
+          proxy: proxy,
+          group_name: selectedGroup, // Thêm tên group vào dữ liệu
+        };
+        console.log(accountData);
+        // Send data to main process or handle it as needed
+        ipcRenderer.send("add_manual_account", accountData);
+        manualInputModal.classList.add("hidden");
+      });
+
+      saveAccountBtn_name_group_account.addEventListener("click", () => {
+        const name_group_account =
+          document.getElementById("name_group_account").value;
+
+        const data = {
+          name_group: name_group_account,
+        };
+
+        ipcRenderer.send("create_app_group", data);
+        if (name_group_account.trim() === "") {
+          alert("Vui lòng nhập tên nhóm tài khoản.");
+          return;
+        }
+        create_name_group.classList.add("hidden");
+      });
+
+      // Event Listeners
+      addDeviceButton.addEventListener("click", () => {
+        // ipcRenderer.send("add_device_button");
+        create_name_group.classList.remove("hidden");
+      });
+
+      startButton.addEventListener("click", () => {
+        alert("Bắt đầu tương tác");
+      });
+
+      stopButton.addEventListener("click", () => {
+        alert("Dừng tương tác");
+      });
+
+      reloadButton.addEventListener("click", addGroup);
+
+      document.addEventListener("contextmenu", showContextMenu);
+      document.addEventListener("click", hideContextMenu);
+
+      contextMenu.addEventListener("click", (e) => {
+        if (e.target.tagName === "LI") {
+          const action = e.target.dataset.action;
+          // Handle different context menu actions
+          console.log("Context menu action:", action);
+          hideContextMenu();
+        }
+      });
+
+      runInteractionsBtn.addEventListener("click", () => {
+        const selectedAccounts = getSelectedAccounts();
+        if (selectedAccounts.length === 0) {
+          alert("Vui lòng chọn ít nhất một tài khoản để thực hiện tương tác.");
+          return;
+        }
+
+        console.log("Các tài khoản được chọn:", selectedAccounts);
+        ipcRenderer.send("run_interactively", selectedAccounts);
+      });
+
+      // Update status function for handling login results
+      function updateAccountStatus(accountId, status, newCookie = "") {
+        const rows = accountsTableBody.getElementsByTagName("tr");
+        for (let row of rows) {
+          const rowData = JSON.parse(row.dataset.account);
+          if (rowData.user === accountId) {
+            // Update status cell
+            const statusCell = row.cells[8]; // Assuming status is in column 9 (index 8)
+            statusCell.textContent = status;
+            // Add status-specific styling
+            statusCell.classList.remove(
+              "text-green-500",
+              "text-red-500",
+              "text-yellow-500"
+            );
+            if (status === "Login Successfully") {
+              statusCell.classList.add("text-green-500");
+              // Update cookie if login was successful
+              if (newCookie) {
+                const cookieCell = row.cells[5]; // Assuming cookie is in column 6 (index 5)
+                cookieCell.textContent = newCookie;
+                // Update the dataset
+                rowData.cookie = newCookie;
+                row.dataset.account = JSON.stringify(rowData);
+              }
+            } else if (
+              status.startsWith("Lỗi") ||
+              status === "Cookie không hợp lệ" ||
+              status === "Kiểm tra thất bại"
+            ) {
+              statusCell.classList.add("text-red-500");
+            } else {
+              statusCell.classList.add("text-yellow-500");
+            }
+            break;
+          }
+        }
+      }
+
+      document
+        .getElementById("closeThreadBtn")
+        .addEventListener("click", () => {
+          ModalThread.classList.add("hidden");
+          // Update all selected accounts to "Processing" status
+          // selectedAccounts.forEach((account) => {
+          //   updateAccountStatus(account.uid, "Đang xử lý");
+          // });
+          // Send login request to main process
+          // ipcRenderer.send("login_facebook", selectedAccounts);
+        });
+      document.getElementById("saveThreadBtn").addEventListener("click", () => {
+        const selectedAccounts = getSelectedAccounts();
+        if (selectedAccounts.length === 0) {
+          alert("Vui lòng chọn ít nhất một tài khoản để thực hiện đăng nhập.");
+          return;
+        }
+        console.log(selectedAccounts);
+        // Update all selected accounts to "Processing" status
+        selectedAccounts.forEach((account) => {
+          updateAccountStatus(account.uid, "Đang xử lý");
+        });
+        // Send login request to main process
+        ipcRenderer.send("login_facebook", selectedAccounts);
+        ModalThread.classList.add("hidden");
+      });
+
+      // Event listener for the login button
+      login_facebook.addEventListener("click", () => {
+        ModalThread.classList.remove("hidden");
+      });
+
+      // Handle login results from main process
+      ipcRenderer.on("login-facebook-status", (event, { accounts }) => {
+        accounts.forEach((account) => {
+          updateAccountStatus(account.id, account.status);
+        });
+      });
+      saveAccountBtn.addEventListener("click", () => {
+        // Lấy ID của hàng đang được chỉnh sửa
+        const editingRowId = accountModal.dataset.editingRowId;
+        const row = document.querySelector(`tr[data-row-id="${editingRowId}"]`);
+
+        if (!row) {
+          console.error("Không tìm thấy hàng đang chỉnh sửa");
+          return;
+        }
+
+        const accountData = JSON.parse(row.dataset.account);
+
+        // Lấy dữ liệu từ các trường input trong modal
+        const username = document.getElementById("accountUsername").value;
+        const password = document.getElementById("accountPassword").value;
+        const proxy = document.getElementById("accountProxy").value;
+        const groupName = row.dataset.groupName;
+        // Cập nhật dữ liệu tài khoản
+        const updatedAccountData = {
+          ...accountData,
+          user: username,
+          password: password,
+          proxy: proxy,
+          groupName: groupName,
+        };
+
+        console.log("Saving account:", updatedAccountData);
+
+        // Cập nhật dữ liệu trong dataset của hàng
+        row.dataset.account = JSON.stringify(updatedAccountData);
+
+        // Cập nhật nội dung hiển thị của hàng
+        row.cells[2].textContent = updatedAccountData.name_device || "";
+        row.cells[3].textContent = updatedAccountData.id_device || "";
+        row.cells[4].textContent = updatedAccountData.application || "";
+        row.cells[5].textContent = updatedAccountData.user || "";
+        row.cells[6].textContent = updatedAccountData.password
+          ? "••••••••"
+          : "";
+        row.cells[7].textContent = updatedAccountData.proxy || "";
+        row.cells[8].textContent = updatedAccountData.status || "";
+
+        // Gửi dữ liệu cập nhật đến main process
+        ipcRenderer.send("save_editAccount", updatedAccountData);
+
+        // Đóng modal
+        accountModal.classList.add("hidden");
+        accountModal.classList.remove("flex");
+      });
+
+      // Hàm để cập nhật dữ liệu trong bảng
+      function updateTableRow(accountData) {
+        const rows = accountsTableBody.getElementsByTagName("tr");
+        for (let row of rows) {
+          const rowData = JSON.parse(row.dataset.account);
+          if (rowData.user === accountData.user) {
+            row.dataset.account = JSON.stringify(accountData);
+            row.cells[1].textContent = accountData.name_device || "";
+            row.cells[2].textContent = accountData.id_device || "";
+            row.cells[3].textContent = accountData.application || "";
+            row.cells[4].textContent = accountData.user || "";
+            row.cells[5].textContent = accountData.password ? "••••••••" : "";
+            row.cells[6].textContent = accountData.proxy || "";
+            row.cells[7].textContent = accountData.status || "";
+            break;
+          }
+        }
+      }
+
+      closeModalBtn.addEventListener("click", () => {
+        accountModal.classList.add("hidden");
+        accountModal.classList.remove("flex");
+      });
+
+      // Initialize
+      addGroup();
+    </script>
+  </body>
+</html>

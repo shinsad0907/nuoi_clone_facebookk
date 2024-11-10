@@ -1,0 +1,83 @@
+{
+    "database": [
+        {
+            "name": "erf",
+            "timeRange": {
+                "start": "0",
+                "end": "0"
+            },
+            "likeVideo": {
+                "quantity": "0",
+                "delay": "0"
+            },
+            "followUsers": {
+                "quantity": "12",
+                "delay": "12"
+            },
+            "commentVideos": {
+                "quantity": "0",
+                "delay": "0"
+            },
+            "readCommentsDuration": "0",
+            "watchVideoDuration": "0",
+            "uploadVideos": {
+                "quantity": "0",
+                "delay": "0"
+            },
+            "viewStories": {
+                "quantity": "0",
+                "delay": "0"
+            },
+            "shareVideos": {
+                "quantity": "0",
+                "delay": "0"
+            }
+        },
+        {
+            "name": "\u01b0ed",
+            "timeRange": {
+                "start": "04:03",
+                "end": "04:04"
+            },
+            "likeVideo": {
+                "quantity": "1234",
+                "delay": "123"
+            },
+            "followUsers": {
+                "quantity": "123",
+                "delay": "123"
+            },
+            "commentVideos": {
+                "quantity": "0",
+                "delay": "0"
+            },
+            "readCommentsDuration": "0",
+            "watchVideoDuration": "0",
+            "uploadVideos": {
+                "quantity": "0",
+                "delay": "0"
+            },
+            "viewStories": {
+                "quantity": "0",
+                "delay": "0"
+            },
+            "shareVideos": {
+                "quantity": "0",
+                "delay": "0"
+            }
+        },
+        {
+            "name": "ffff"
+        },
+        {
+            "name": "testcauhinh",
+            "addfriend": {
+                "amount": 10,
+                "delay": 5
+            },
+            "newfeed": {
+                "time": 10
+            }
+        }
+    ]
+}

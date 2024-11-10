@@ -1,0 +1,808 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>TikTok Management Tool</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
+    <!-- Thêm Sortable.js từ CDN -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js"></script>
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
+      rel="stylesheet"
+    />
+    <style>
+      body {
+        background-color: #f0f2f5;
+        font-family: "Inter", sans-serif;
+      }
+      .container {
+        max-width: 1000px;
+      }
+      .modal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+        z-index: 1000;
+      }
+
+      .modal-content {
+        position: relative;
+        background-color: #fff;
+        margin: 5% auto;
+        padding: 20px;
+        width: 70%;
+        max-width: 600px;
+        border-radius: 12px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      }
+
+      .close {
+        position: absolute;
+        right: 20px;
+        top: 15px;
+        font-size: 24px;
+        cursor: pointer;
+        color: #666;
+      }
+
+      .action-buttons {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 20px;
+      }
+
+      .action-btn {
+        padding: 10px 20px;
+        border: 2px solid #3b82f6;
+        border-radius: 8px;
+        background: white;
+        color: #3b82f6;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s;
+      }
+
+      .action-btn.active {
+        background: #3b82f6;
+        color: white;
+      }
+
+      .action-btn:hover {
+        background: #3b82f6;
+        color: white;
+      }
+
+      .settings-panel {
+        display: none;
+        background: #f8fafc;
+        padding: 15px;
+        border-radius: 8px;
+        margin-top: 15px;
+      }
+
+      .action-chips {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-top: 15px;
+        padding: 10px;
+        border: 1px dashed #cbd5e1;
+        border-radius: 8px;
+        min-height: 60px;
+      }
+
+      .action-chip {
+        background: #3b82f6;
+        color: white;
+        padding: 8px 15px;
+        border-radius: 20px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 14px;
+      }
+
+      .remove-chip {
+        background: rgba(255, 255, 255, 0.2);
+        border-radius: 50%;
+        width: 20px;
+        height: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+      }
+
+      .input-group {
+        margin-bottom: 15px;
+      }
+
+      .input-group label {
+        display: block;
+        margin-bottom: 5px;
+        color: #4b5563;
+        font-weight: 500;
+      }
+
+      .input-group input {
+        width: 100%;
+        padding: 8px 12px;
+        border: 1px solid #d1d5db;
+        border-radius: 6px;
+        font-size: 14px;
+      }
+
+      .save-btn,
+      .add-action-modal-btn {
+        background: #10b981;
+        color: white;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 6px;
+        font-weight: 600;
+        cursor: pointer;
+        width: 100%;
+        margin-top: 20px;
+        transition: all 0.3s;
+      }
+
+      .save-btn:hover,
+      .add-action-modal-btn:hover {
+        background: #059669;
+      }
+
+      .add-action-modal-btn {
+        background: #3b82f6;
+        margin-bottom: 10px;
+      }
+
+      .add-action-modal-btn:hover {
+        background: #2563eb;
+      }
+      .drag-handle {
+        cursor: move;
+        color: #9ca3af;
+      }
+
+      .dragging {
+        opacity: 0.5;
+        background: #f3f4f6;
+      }
+
+      .action-row:hover .drag-handle {
+        color: #6b7280;
+      }
+
+      .update-btn {
+        background: #3b82f6;
+        color: white;
+        padding: 8px 16px;
+        border-radius: 6px;
+        font-weight: 600;
+        transition: all 0.3s;
+      }
+
+      .update-btn:hover {
+        background: #2563eb;
+      }
+
+      /* Thêm style cho dấu hiệu có thể kéo */
+      .action-row td:first-child {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      /* ... (giữ nguyên các style cũ) ... */
+
+      .drag-handle {
+        cursor: move;
+        color: #9ca3af;
+      }
+
+      .dragging {
+        opacity: 0.5;
+        background: #f3f4f6;
+      }
+
+      .action-row:hover .drag-handle {
+        color: #6b7280;
+      }
+
+      .update-btn {
+        background: #3b82f6;
+        color: white;
+        padding: 8px 16px;
+        border-radius: 6px;
+        font-weight: 600;
+        transition: all 0.3s;
+      }
+
+      .update-btn:hover {
+        background: #2563eb;
+      }
+
+      /* Thêm style cho dấu hiệu có thể kéo */
+      .action-row td:first-child {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container mx-auto px-4 py-8">
+      <h1 class="text-3xl font-bold mb-6 text-gray-800">
+        <i data-feather="settings" class="inline mr-2"></i>
+        TikTok Management Tool
+      </h1>
+
+      <div class="bg-white shadow-md rounded-lg p-6 mb-6 space-x-4">
+        <h2 class="text-xl font-semibold mb-4 text-gray-700">
+          Thêm Hành Động Nuôi Tài Khoản
+        </h2>
+        <select
+          id="configSelect"
+          class="bg-white border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+        >
+          <option value="">Chọn Cấu hình</option>
+        </select>
+        <button
+          id="addActionBtn"
+          class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
+        >
+          <i class="fas fa-plus mr-2"></i>Thêm Hành Động
+        </button>
+      </div>
+
+      <div class="bg-white shadow-md rounded-lg overflow-hidden">
+        <div class="p-4 border-b flex justify-between items-center">
+          <h3 class="text-lg font-semibold text-gray-700">
+            Danh sách hành động
+          </h3>
+          <button id="updateActionsBtn" class="update-btn">
+            <i class="fas fa-sync-alt mr-2"></i>Cập nhật thứ tự
+          </button>
+        </div>
+        <table class="min-w-full">
+          <thead class="bg-gray-200 text-gray-700">
+            <tr>
+              <th class="py-3 px-4 text-left" style="width: 80px">STT</th>
+              <th class="py-3 px-4 text-left">Hành Động</th>
+              <th class="py-3 px-4 text-left">Thời Gian</th>
+              <th class="py-3 px-4 text-left">Tùy chọn</th>
+            </tr>
+          </thead>
+          <tbody id="actionTableBody" class="text-gray-600"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Modal -->
+    <div id="actionModal" class="modal">
+      <div class="modal-content">
+        <span class="close">&times;</span>
+        <h2 class="text-xl font-semibold mb-4">Thêm Hành Động</h2>
+
+        <div class="action-buttons">
+          <button class="action-btn" data-action="ketban">Kết bạn</button>
+          <button class="action-btn" data-action="newfeed">Lướt Newfeed</button>
+        </div>
+
+        <!-- Panel Kết bạn -->
+        <div id="ketbanPanel" class="settings-panel">
+          <div class="input-group">
+            <label>Số lượng kết bạn:</label>
+            <input type="number" id="ketbanAmount" min="1" value="10" />
+          </div>
+          <div class="input-group">
+            <label>Delay giữa mỗi lần kết bạn (giây):</label>
+            <input type="number" id="ketbanDelay" min="1" value="5" />
+          </div>
+        </div>
+
+        <!-- Panel Newfeed -->
+        <div id="newfeedPanel" class="settings-panel">
+          <div class="input-group">
+            <label>Thời gian lướt (phút):</label>
+            <input type="number" id="newfeedTime" min="1" value="10" />
+          </div>
+        </div>
+
+        <!-- Khu vực hiển thị các hành động đã chọn -->
+        <div class="action-chips"></div>
+
+        <!-- Thêm nút "Thêm hành động" -->
+        <button class="add-action-modal-btn">Thêm Hành Động</button>
+
+        <button class="save-btn">Lưu Hành Động</button>
+      </div>
+    </div>
+
+    <script>
+      feather.replace();
+      const { ipcRenderer } = require("electron");
+
+      // Modal elements
+      const modal = document.getElementById("actionModal");
+      const addActionBtn = document.getElementById("addActionBtn");
+      const closeBtn = document.querySelector(".close");
+      const actionBtns = document.querySelectorAll(".action-btn");
+      const ketbanPanel = document.getElementById("ketbanPanel");
+      const newfeedPanel = document.getElementById("newfeedPanel");
+      const actionChips = document.querySelector(".action-chips");
+      const saveBtn = document.querySelector(".save-btn");
+      const addActionModalBtn = document.querySelector(".add-action-modal-btn");
+      let currentAction = null;
+      let temporaryActions = []; // Mảng tạm thời để lưu các hành động trong modal
+
+      // Initialize table
+      const actionTableBody = document.getElementById("actionTableBody");
+      let editingRow = null;
+      let tableData = [];
+      let rowCounter = 1;
+      let savedActions = [];
+
+      // Modal functions
+      addActionBtn.onclick = () => {
+        modal.style.display = "block";
+        temporaryActions = []; // Reset temporary actions when opening modal
+        actionChips.innerHTML = ""; // Clear existing chips
+      };
+
+      closeBtn.onclick = () => {
+        modal.style.display = "none";
+        temporaryActions = []; // Clear temporary actions when closing
+      };
+
+      window.onclick = (event) => {
+        if (event.target == modal) {
+          modal.style.display = "none";
+          temporaryActions = []; // Clear temporary actions when closing
+        }
+      };
+
+      // Action button handlers
+      actionBtns.forEach((btn) => {
+        btn.onclick = function () {
+          const action = this.dataset.action;
+          currentAction = action;
+
+          actionBtns.forEach((b) => b.classList.remove("active"));
+          this.classList.add("active");
+
+          ketbanPanel.style.display = "none";
+          newfeedPanel.style.display = "none";
+
+          if (action === "ketban") {
+            ketbanPanel.style.display = "block";
+          } else if (action === "newfeed") {
+            newfeedPanel.style.display = "block";
+          }
+        };
+      });
+
+      // Add action to chips
+      addActionModalBtn.onclick = () => {
+        if (!currentAction) {
+          alert("Vui lòng chọn loại hành động!");
+          return;
+        }
+
+        let actionData = {
+          actionType: currentAction,
+        };
+
+        if (currentAction === "ketban") {
+          const amount = document.getElementById("ketbanAmount").value;
+          const delay = document.getElementById("ketbanDelay").value;
+          actionData = {
+            ...actionData,
+            amount: parseInt(amount),
+            delay: parseInt(delay),
+          };
+        } else if (currentAction === "newfeed") {
+          const time = document.getElementById("newfeedTime").value;
+          actionData = {
+            ...actionData,
+            time: parseInt(time),
+          };
+        }
+
+        temporaryActions.push(actionData);
+        updateActionChips();
+      };
+
+      function updateActionChips() {
+        actionChips.innerHTML = ""; // Clear existing chips
+        temporaryActions.forEach((action, index) => {
+          const chip = document.createElement("div");
+          chip.className = "action-chip";
+
+          let chipText = "";
+          if (action.actionType === "ketban") {
+            chipText = `Kết bạn: ${action.amount} người, delay ${action.delay}s`;
+          } else if (action.actionType === "newfeed") {
+            chipText = `Lướt Newfeed: ${action.time} phút`;
+          }
+
+          chip.innerHTML = `
+                    ${chipText}
+                    <span class="remove-chip" data-index="${index}">&times;</span>
+                `;
+
+          chip.querySelector(".remove-chip").onclick = (e) => {
+            const index = parseInt(e.target.dataset.index);
+            temporaryActions.splice(index, 1);
+            updateActionChips();
+          };
+
+          actionChips.appendChild(chip);
+        });
+      }
+
+      // Save button handler
+      saveBtn.onclick = () => {
+        const selectedConfig = selectElement.value;
+        if (!selectedConfig) {
+          alert("Vui lòng chọn cấu hình trước khi lưu hành động!");
+          return;
+        }
+
+        if (temporaryActions.length === 0) {
+          alert("Vui lòng thêm ít nhất một hành động!");
+          return;
+        }
+
+        // Add configuration name to each action
+        const actionsWithConfig = temporaryActions.map((action) => ({
+          ...action,
+          configName: selectedConfig,
+        }));
+
+        // Thay thế hoàn toàn savedActions thay vì thêm vào
+        savedActions = actionsWithConfig;
+
+        // Xóa toàn bộ bảng hiện tại
+        actionTableBody.innerHTML = "";
+        rowCounter = 1;
+
+        // Thêm các hành động mới vào bảng
+        actionsWithConfig.forEach((actionData) => {
+          addToTable(actionData);
+        });
+
+        console.log("Cấu hình đã chọn:", selectedConfig);
+        console.log("Các hành động của lần lưu này:", savedActions);
+
+        // lưu acction
+        ipcRenderer.send("save_settingaction", savedActions);
+        // Reset và đóng modal
+        resetForm();
+        modal.style.display = "none";
+        temporaryActions = [];
+      };
+
+      // Cập nhật hàm addToTable để sử dụng rowCounter chính xác
+      function addToTable(actionData) {
+        const row = document.createElement("tr");
+        row.className = "action-row hover:bg-gray-50";
+        const timeNow = new Date().toLocaleTimeString();
+
+        let actionText = "";
+        if (actionData.actionType === "ketban") {
+          actionText = `Kết bạn ${actionData.amount} người (Delay: ${actionData.delay}s)`;
+        } else {
+          actionText = `Lướt Newfeed ${actionData.time} phút`;
+        }
+
+        row.innerHTML = `
+    <td class="py-3 px-4">
+      <div class="flex items-center gap-2">
+        <i class="fas fa-grip-vertical drag-handle cursor-move text-gray-400 hover:text-gray-600"></i>
+        <span class="row-number">${rowCounter++}</span>
+      </div>
+    </td>
+    <td class="py-3 px-4">${actionText}</td>
+    <td class="py-3 px-4">${timeNow}</td>
+    <td class="py-3 px-4">
+      <button class="text-blue-500 hover:underline edit-btn">Sửa</button>
+      <button class="text-red-500 hover:underline delete-btn ml-2">Xóa</button>
+    </td>
+  `;
+
+        // Thêm các event listeners
+        row.querySelector(".delete-btn").onclick = () => {
+          const index = Array.from(actionTableBody.children).indexOf(row);
+          savedActions.splice(index, 1);
+          row.remove();
+          updateRowNumbers();
+        };
+
+        row.querySelector(".edit-btn").onclick = () => {
+          // ... (giữ nguyên code edit button)
+        };
+
+        actionTableBody.appendChild(row);
+      }
+
+      // Khởi tạo Sortable
+      const sortable = new Sortable(actionTableBody, {
+        animation: 150,
+        handle: ".drag-handle", // Chỉ có thể kéo thả bằng handle
+        draggable: "tr", // Chỉ định phần tử có thể kéo thả
+        ghostClass: "dragging", // Class cho phần tử đang được kéo
+        onEnd: function (evt) {
+          updateRowNumbers();
+          // Cập nhật mảng savedActions theo thứ tự mới
+          const newOrder = [];
+          const rows = actionTableBody.getElementsByTagName("tr");
+          Array.from(rows).forEach((row) => {
+            const actionText = row.cells[1].textContent;
+            if (actionText.includes("Kết bạn")) {
+              const match = actionText.match(
+                /Kết bạn (\d+) người \(Delay: (\d+)s\)/
+              );
+              if (match) {
+                newOrder.push({
+                  actionType: "ketban",
+                  amount: parseInt(match[1]),
+                  delay: parseInt(match[2]),
+                  configName: selectElement.value,
+                });
+              }
+            } else {
+              const match = actionText.match(/Lướt Newfeed (\d+) phút/);
+              if (match) {
+                newOrder.push({
+                  actionType: "newfeed",
+                  time: parseInt(match[1]),
+                  configName: selectElement.value,
+                });
+              }
+            }
+          });
+          savedActions = newOrder;
+        },
+      });
+
+      // Cập nhật hàm updateRowNumbers
+      function updateRowNumbers() {
+        const rows = actionTableBody.getElementsByTagName("tr");
+        Array.from(rows).forEach((row, index) => {
+          row.querySelector(".row-number").textContent = index + 1;
+        });
+        rowCounter = rows.length + 1;
+      }
+
+      // Clear function to reset everything
+
+      // Cập nhật hàm clearTable
+      function clearTable() {
+        actionTableBody.innerHTML = "";
+        rowCounter = 1;
+        savedActions = []; // Reset savedActions khi xóa bảng
+        console.log("Đã xóa tất cả hành động");
+      }
+
+      // Reset form after saving
+      function resetForm() {
+        currentAction = null;
+        actionBtns.forEach((btn) => btn.classList.remove("active"));
+        ketbanPanel.style.display = "none";
+        newfeedPanel.style.display = "none";
+        document.getElementById("ketbanAmount").value = "10";
+        document.getElementById("ketbanDelay").value = "5";
+        document.getElementById("newfeedTime").value = "10";
+        actionChips.innerHTML = "";
+        temporaryActions = [];
+      }
+
+      // Configuration select handling
+      const selectElement = document.getElementById("configSelect");
+
+      // JSON data handling
+      ipcRenderer.send("get-json-data");
+      ipcRenderer.on("json-data", (event, jsonData) => {
+        if (jsonData) {
+          console.log("Received JSON data:", jsonData);
+          displayJsonData(jsonData);
+        } else {
+          console.error("No JSON data received");
+        }
+      });
+
+      function displayJsonData(data) {
+        // Populate select options
+        data.database.forEach((config) => {
+          const option = document.createElement("option");
+          option.value = config.name;
+          option.textContent = config.name;
+          selectElement.appendChild(option);
+        });
+
+        selectElement.onchange = (event) => {
+          clearTable();
+          const selectedConfig = data.database.find(
+            (config) => config.name === event.target.value
+          );
+
+          if (selectedConfig) {
+            let rowCounter = 1;
+
+            // Add addfriend action if exists
+            if (selectedConfig.addfriend) {
+              const addFriendRow = `
+                    <tr>
+                        <td class="py-3 px-4">${rowCounter++}</td>
+                        <td class="py-3 px-4">Kết bạn ${
+                          selectedConfig.addfriend.amount
+                        } người (Delay: ${selectedConfig.addfriend.delay}s)</td>
+                        <td class="py-3 px-4">${new Date().toLocaleTimeString()}</td>
+                        <td class="py-3 px-4">
+                            <button class="text-blue-500 hover:underline edit-btn">Sửa</button>
+                            <button class="text-red-500 hover:underline delete-btn">Xóa</button>
+                        </td>
+                    </tr>
+                `;
+              actionTableBody.innerHTML += addFriendRow;
+            }
+
+            // Add newfeed action if exists
+            if (selectedConfig.newfeed) {
+              const newFeedRow = `
+                    <tr>
+                        <td class="py-3 px-4">${rowCounter++}</td>
+                        <td class="py-3 px-4">Lướt Newfeed ${
+                          selectedConfig.newfeed.time
+                        } phút</td>
+                        <td class="py-3 px-4">${new Date().toLocaleTimeString()}</td>
+                        <td class="py-3 px-4">
+                            <button class="text-blue-500 hover:underline edit-btn">Sửa</button>
+                            <button class="text-red-500 hover:underline delete-btn">Xóa</button>
+                        </td>
+                    </tr>
+                `;
+              actionTableBody.innerHTML += newFeedRow;
+            }
+
+            // Add event listeners to new buttons
+            const rows = actionTableBody.getElementsByTagName("tr");
+            Array.from(rows).forEach((row, index) => {
+              // Delete button functionality
+              row.querySelector(".delete-btn").onclick = () => {
+                row.remove();
+                updateRowNumbers();
+              };
+
+              // Edit button functionality
+              row.querySelector(".edit-btn").onclick = () => {
+                const isAddFriend =
+                  row.cells[1].textContent.includes("Kết bạn");
+
+                // Reset temporary actions
+                temporaryActions = [];
+
+                if (isAddFriend) {
+                  const amount = selectedConfig.addfriend.amount;
+                  const delay = selectedConfig.addfriend.delay;
+                  temporaryActions.push({
+                    actionType: "ketban",
+                    amount: amount,
+                    delay: delay,
+                    configName: selectedConfig.name,
+                  });
+
+                  // Set form values
+                  document.getElementById("ketbanAmount").value = amount;
+                  document.getElementById("ketbanDelay").value = delay;
+                  ketbanPanel.style.display = "block";
+                  newfeedPanel.style.display = "none";
+                  currentAction = "ketban";
+                } else {
+                  const time = selectedConfig.newfeed.time;
+                  temporaryActions.push({
+                    actionType: "newfeed",
+                    time: time,
+                    configName: selectedConfig.name,
+                  });
+
+                  // Set form values
+                  document.getElementById("newfeedTime").value = time;
+                  ketbanPanel.style.display = "none";
+                  newfeedPanel.style.display = "block";
+                  currentAction = "newfeed";
+                }
+
+                // Update UI
+                updateActionChips();
+                actionBtns.forEach((btn) => {
+                  btn.classList.toggle(
+                    "active",
+                    btn.dataset.action === currentAction
+                  );
+                });
+
+                editingRow = row;
+                modal.style.display = "block";
+              };
+            });
+
+            // Update savedActions array with the current configuration
+            savedActions = [];
+            if (selectedConfig.addfriend) {
+              savedActions.push({
+                actionType: "ketban",
+                amount: selectedConfig.addfriend.amount,
+                delay: selectedConfig.addfriend.delay,
+                configName: selectedConfig.name,
+              });
+            }
+            if (selectedConfig.newfeed) {
+              savedActions.push({
+                actionType: "newfeed",
+                time: selectedConfig.newfeed.time,
+                configName: selectedConfig.name,
+              });
+            }
+          }
+        };
+      }
+      // Thêm event listener cho nút cập nhật
+      document.getElementById("updateActionsBtn").onclick = function () {
+        const rows = actionTableBody.getElementsByTagName("tr");
+        const newOrder = [];
+
+        // Lấy thứ tự mới của các hành động
+        Array.from(rows).forEach((row, index) => {
+          const actionText = row.cells[1].textContent;
+          const isKetban = actionText.includes("Kết bạn");
+
+          if (isKetban) {
+            const match = actionText.match(
+              /Kết bạn (\d+) người \(Delay: (\d+)s\)/
+            );
+            if (match) {
+              newOrder.push({
+                actionType: "ketban",
+                amount: parseInt(match[1]),
+                delay: parseInt(match[2]),
+                configName: selectElement.value,
+              });
+            }
+          } else {
+            const match = actionText.match(/Lướt Newfeed (\d+) phút/);
+            if (match) {
+              newOrder.push({
+                actionType: "newfeed",
+                time: parseInt(match[1]),
+                configName: selectElement.value,
+              });
+            }
+          }
+        });
+
+        // Cập nhật mảng savedActions với thứ tự mới
+        savedActions = newOrder;
+
+        // Gửi dữ liệu mới đến main process
+        ipcRenderer.send("save_settingaction", savedActions);
+
+        // Hiển thị thông báo
+        alert("Đã cập nhật thứ tự hành động thành công!");
+
+        console.log("Thứ tự hành động mới:", savedActions);
+      };
+    </script>
+  </body>
+</html>

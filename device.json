@@ -1,0 +1,66 @@
+{
+  "data": [
+    {
+      "device_id": "2ad21914df0d7ece",
+      "device_name": "SM-A920F",
+      "status": "Connected",
+      "app": [
+        {
+          "id": "com.zhiliaoapp.musicallp",
+          "name": "TikTok 1: Musicallp",
+          "status": "Connected"
+        },
+        {
+          "id": "com.zhiliaoapp.musicallq",
+          "name": "TikTok 2: Musicallq",
+          "status": "Connected"
+        },
+        {
+          "id": "com.zhiliaoapp.musicallr",
+          "name": "TikTok 3: Musicallr",
+          "status": "Connected"
+        },
+        {
+          "id": "com.zhiliaoapp.musicalls",
+          "name": "TikTok 4: Musicalls",
+          "status": "Connected"
+        },
+        {
+          "id": "com.zhiliaoapp.musicallt",
+          "name": "TikTok 5: Musicallt",
+          "status": "Connected"
+        },
+        {
+          "id": "com.zhiliaoapp.musicallu",
+          "name": "TikTok 6: Musicallu",
+          "status": "Connected"
+        },
+        {
+          "id": "com.zhiliaoapp.musicallv",
+          "name": "TikTok 7: Musicallv",
+          "status": "Connected"
+        },
+        {
+          "id": "com.zhiliaoapp.musicallw",
+          "name": "TikTok 8: Musicallw",
+          "status": "Connected"
+        },
+        {
+          "id": "com.zhiliaoapp.musicallx",
+          "name": "TikTok 9: Musicallx",
+          "status": "Connected"
+        },
+        {
+          "id": "com.zhiliaoapp.musically",
+          "name": "TikTok 10: Musically",
+          "status": "Connected"
+        },
+        {
+          "id": "com.zhiliaoapp.musicallz",
+          "name": "TikTok 11: Musicallz",
+          "status": "Connected"
+        }
+      ]
+    }
+  ]
+}

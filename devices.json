@@ -1,0 +1,16 @@
+{
+    "data": [
+        {
+            "name_group": "ff",
+            "data": [
+                {
+                    "name_device": "MI 8 Lite",
+                    "application": "com.zhiliaoapp.musicallz",
+                    "user": "",
+                    "password": "",
+                    "proxy": ""
+                }
+            ]
+        }
+    ]
+}

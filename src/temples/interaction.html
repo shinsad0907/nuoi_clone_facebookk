@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Chạy Tương Tác - TikTok Management Tool</title>
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css"
+      rel="stylesheet"
+    />
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
+      rel="stylesheet"
+    />
+  </head>
+  <body class="bg-gray-100 font-sans">
+    <div
+      id="actionModal"
+      class="hidden fixed top-0 left-0 w-full h-full z-50 overflow-y-auto bg-gray-500 bg-opacity-75 flex justify-center items-center"
+    >
+      <div class="bg-white p-6 rounded-lg shadow-md">
+        <h3 class="text-xl font-semibold mb-4">Thêm Hành Động Mới</h3>
+        <form id="actionForm">
+          <div class="mb-4">
+            <label class="block text-gray-700">Tên Hành Động:</label>
+            <input
+              type="text"
+              id="actionName"
+              class="border rounded w-full px-3 py-2"
+              required
+            />
+          </div>
+          <div class="flex justify-end">
+            <button
+              type="button"
+              id="submitAction"
+              class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+            >
+              Thêm
+            </button>
+            <button
+              type="button"
+              id="closeModal"
+              class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 ml-2"
+            >
+              Hủy
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+    <div class="container mx-auto px-4 py-8">
+      <div class="bg-white shadow-md rounded-lg overflow-hidden">
+        <div
+          class="bg-gray-800 text-white px-6 py-4 flex justify-between items-center"
+        >
+          <h1 class="text-2xl font-bold">Chạy tương tác</h1>
+          <button class="text-gray-300 hover:text-white">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+
+        <div class="p-6">
+          <div class="flex items-center justify-between mb-6">
+            <select
+              id="configSelect"
+              class="bg-white border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+              <option value="">Chọn Cấu hình</option>
+            </select>
+            <div class="flex items-center space-x-4">
+              <button
+                id="OpenSettings"
+                class="bg-yellow-500 text-white px-4 py-2 rounded hover:bg-yellow-600"
+              >
+                <i class="fas fa-cog mr-2"></i>Cài đặt
+              </button>
+              <button
+                class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+              >
+                <i class="fas fa-magic mr-2"></i>Auto
+              </button>
+              <button
+                id="Run_nuoi_clone"
+                class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
+              >
+                <i class="fas fa-play mr-2"></i>Chạy
+              </button>
+              <button
+                class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"
+              >
+                <i class="fas fa-stop mr-2"></i>Dừng
+              </button>
+              <button
+                id="AddAction"
+                class="bg-purple-500 text-white px-4 py-2 rounded hover:bg-purple-600"
+              >
+                <i class="fas fa-plus mr-2"></i>Thêm Hành Động
+              </button>
+            </div>
+          </div>
+
+          <div id="configDetails" class="mb-6 hidden">
+            <h2 class="text-xl font-bold mb-2">Chi tiết cấu hình</h2>
+            <div id="configContent"></div>
+          </div>
+
+          <div class="bg-white shadow-md rounded-lg overflow-hidden">
+            <table class="min-w-full">
+              <thead class="bg-gray-200 text-gray-700">
+                <tr>
+                  <th class="py-3 px-4 text-left"></th>
+                  <th class="py-3 px-4 text-left">STT</th>
+                  <th class="py-3 px-4 text-left">Name_Groups</th>
+                  <th class="py-3 px-4 text-left">ID/Email</th>
+                  <th class="py-3 px-4 text-left">Password</th>
+                  <th class="py-3 px-4 text-left">Cookie</th>
+                  <th class="py-3 px-4 text-left">Proxy</th>
+                  <th class="py-3 px-4 text-left">Note</th>
+                  <th class="py-3 px-4 text-left">Status</th>
+                  <th class="py-3 px-4 text-left">Actions</th>
+                </tr>
+              </thead>
+              <tbody id="accountsTableBody" class="text-gray-600">
+                <!-- Account data will be added here dynamically -->
+              </tbody>
+            </table>
+          </div>
+
+          <div class="mt-6 text-center">
+            <p class="text-gray-600">
+              Video Hướng dẫn tương tác:
+              <a
+                href="https://youtu.be/4KPJlYC6TJM"
+                target="_blank"
+                class="text-blue-500 hover:underline"
+              >
+                https://youtu.be/4KPJlYC6TJM
+              </a>
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+    <script>
+      // button click
+      const button_run = document.getElementById("Run_nuoi_clone");
+
+      // DOM
+      const accountsTableBody = document.getElementById("accountsTableBody");
+      const selectElement = document.getElementById("configSelect");
+      const configDetails = document.getElementById("configDetails");
+      const configContent = document.getElementById("configContent");
+      const { ipcRenderer } = require("electron");
+      const addActionBtn = document.getElementById("addActionBtn");
+
+      function shortenCookie(cookie) {
+        if (cookie && cookie.length > 10) {
+          return cookie.substring(0, 10) + "...";
+        }
+        return cookie;
+      }
+
+      function updateTreeview(accounts) {
+        const treeview = document.querySelector("tbody");
+        if (!treeview) {
+          console.error("Could not find <tbody> element.");
+          return; // Thoát hàm nếu không tìm thấy tbody
+        }
+
+        treeview.innerHTML = ""; // Clear existing content
+        accounts.forEach((account, index) => {
+          const row = document.createElement("tr");
+          row.classList.add("hover:bg-gray-100");
+          row.innerHTML = `
+              <td class="py-2 px-4 align-middle">
+                  <input type="checkbox" class="form-checkbox h-4 w-4" name="accountSelection" value="${index}" />
+              </td>
+              <td class="py-2 px-4 align-middle">${index + 1}</td>
+              <td class="py-2 px-4 align-middle">${account.group || ""}</td>
+              <td class="py-2 px-4 align-middle">${account.uid || ""}</td>
+              <td class="py-2 px-4 align-middle">${
+                account.password ? "••••••••" : ""
+              }</td>
+              <td class="py-2 px-4 align-middle" data-fullcookie="${
+                account.cookie || ""
+              }">
+                  <span title="${account.cookie || ""}">${shortenCookie(
+            account.cookie || ""
+          )}</span>
+              </td>
+              <td class="py-2 px-4 align-middle">${account.proxy || ""}</td>
+              <td class="py-2 px-4 align-middle">${account.note || ""}</td>
+              <td class="py-2 px-4 align-middle">${account.status || ""}</td>
+              <td class="py-2 px-4 align-middle space-x-2">
+                  <button class="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600 text-sm" onclick="editAccount(this)">Sửa</button>
+                  <button class="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600 text-sm" onclick="deleteAccount(this)">Xóa</button>
+                  <button class="bg-green-500 text-white px-3 py-1 rounded hover:bg-green-600 text-sm" onclick="openWeb(this)">Open Web</button>
+              </td>
+          `;
+          treeview.appendChild(row);
+        });
+      }
+      ipcRenderer.on("accounts-data", (event, accountsData) => {
+        console.log("Received accounts data:", accountsData);
+        updateTreeview(accountsData);
+      });
+
+      // Hàm để hiển thị dữ liệu JSON
+      function displayJsonData(data) {
+        // Populate select options
+        data.database.forEach((config) => {
+          const option = document.createElement("option");
+          option.value = config.name;
+          option.textContent = config.name;
+          selectElement.appendChild(option);
+        });
+
+        // Show config details when an option is selected
+        selectElement.addEventListener("change", (event) => {
+          const selectedConfig = data.database.find(
+            (config) => config.name === event.target.value
+          );
+          if (selectedConfig) {
+            configDetails.classList.remove("hidden");
+            configContent.innerHTML = `
+          <p><strong>Thời gian:</strong> ${selectedConfig.timeRange.start} - ${selectedConfig.timeRange.end}</p>
+          <p><strong>Like Video:</strong> Số lượng: ${selectedConfig.likeVideo.quantity}, Độ trễ: ${selectedConfig.likeVideo.delay}</p>
+          <p><strong>Follow Users:</strong> Số lượng: ${selectedConfig.followUsers.quantity}, Độ trễ: ${selectedConfig.followUsers.delay}</p>
+          <p><strong>Comment Videos:</strong> Số lượng: ${selectedConfig.commentVideos.quantity}, Độ trễ: ${selectedConfig.commentVideos.delay}</p>
+          <p><strong>Thời gian đọc bình luận:</strong> ${selectedConfig.readCommentsDuration}</p>
+          <p><strong>Thời gian xem video:</strong> ${selectedConfig.watchVideoDuration}</p>
+          <p><strong>Upload Videos:</strong> Số lượng: ${selectedConfig.uploadVideos.quantity}, Độ trễ: ${selectedConfig.uploadVideos.delay}</p>
+        `;
+          } else {
+            configDetails.classList.add("hidden");
+          }
+        });
+      }
+
+      let currentJsonData = null;
+
+      // Sửa đổi hàm displayJsonData để lưu trữ dữ liệu
+      function displayJsonData(data) {
+        // Lưu trữ dữ liệu JSON vào biến toàn cục
+        currentJsonData = data;
+
+        // Phần code cũ của hàm vẫn giữ nguyên
+        data.database.forEach((config) => {
+          const option = document.createElement("option");
+          option.value = config.name;
+          option.textContent = config.name;
+          selectElement.appendChild(option);
+        });
+
+        selectElement.addEventListener("change", (event) => {
+          const selectedConfig = data.database.find(
+            (config) => config.name === event.target.value
+          );
+          if (selectedConfig) {
+            configDetails.classList.remove("hidden");
+            configContent.innerHTML = `
+                  <p><strong>Thời gian:</strong> ${selectedConfig.timeRange.start} - ${selectedConfig.timeRange.end}</p>
+                  <p><strong>Like Video:</strong> Số lượng: ${selectedConfig.likeVideo.quantity}, Độ trễ: ${selectedConfig.likeVideo.delay}</p>
+                  <p><strong>Follow Users:</strong> Số lượng: ${selectedConfig.followUsers.quantity}, Độ trễ: ${selectedConfig.followUsers.delay}</p>
+                  <p><strong>Comment Videos:</strong> Số lượng: ${selectedConfig.commentVideos.quantity}, Độ trễ: ${selectedConfig.commentVideos.delay}</p>
+                  <p><strong>Thời gian đọc bình luận:</strong> ${selectedConfig.readCommentsDuration}</p>
+                  <p><strong>Thời gian xem video:</strong> ${selectedConfig.watchVideoDuration}</p>
+                  <p><strong>Upload Videos:</strong> Số lượng: ${selectedConfig.uploadVideos.quantity}, Độ trễ: ${selectedConfig.uploadVideos.delay}</p>
+              `;
+          } else {
+            configDetails.classList.add("hidden");
+          }
+        });
+      }
+
+      // Function to update treeview with status column
+
+      // Helper function to get status styling class
+      function getStatusClass(status) {
+        if (!status) return "";
+
+        // Find matching status configuration
+        const matchingStatus = Object.entries(STATUS_CONFIG).find(([key]) =>
+          status.toLowerCase().includes(key.toLowerCase())
+        );
+
+        return matchingStatus ? matchingStatus[1].class : "";
+      }
+
+      // Function to update account status
+      function updateAccountStatus(accountId, status, newCookie = "") {
+        if (!accountId) {
+          console.error("Account ID is required to update status");
+          return;
+        }
+
+        const row = document.querySelector(
+          `tr[data-account-id="${accountId}"]`
+        );
+        if (!row) {
+          console.error(`No row found for account ID: ${accountId}`);
+          return;
+        }
+
+        // Update status cell
+        const statusCell = row.querySelector(".status-cell");
+        if (statusCell) {
+          // Clear existing classes
+          statusCell.className = "py-2 px-4 align-middle status-cell";
+
+          // Add new status class
+          const statusClass = getStatusClass(status);
+          if (statusClass) {
+            statusCell.classList.add(...statusClass.split(" "));
+          }
+
+          // Update status text and spinner
+          statusCell.innerHTML = `
+        ${status}
+        ${
+          status === "Đang xử lý" ? '<span class="loading-spinner"></span>' : ""
+        }
+      `;
+
+          // Update cookie if provided
+          if (newCookie) {
+            const cookieCell = row.querySelector("[data-fullcookie]");
+            if (cookieCell) {
+              cookieCell.setAttribute("data-fullcookie", newCookie);
+              cookieCell.querySelector("span").textContent =
+                shortenCookie(newCookie);
+              cookieCell.querySelector("span").title = newCookie;
+
+              // Update stored account data
+              const accountData = JSON.parse(row.dataset.accountData);
+              accountData.cookie = newCookie;
+              row.dataset.accountData = JSON.stringify(accountData);
+            }
+          }
+        }
+      }
+
+      function getTreeviewData() {
+        const rows = document.querySelectorAll("#accountsTableBody tr");
+        const selectedAccounts = [];
+
+        rows.forEach((row) => {
+          const checkbox = row.querySelector('input[type="checkbox"]');
+          if (checkbox && checkbox.checked) {
+            // Lấy dữ liệu đầy đủ từ data-account attribute
+            const accountData = {
+              user: row.cells[3].textContent.trim(), // uid/email column
+              password: row.cells[4].textContent.trim(),
+              cookie:
+                row.cells[5]
+                  .querySelector("[data-fullcookie]")
+                  ?.getAttribute("data-fullcookie") || "",
+              proxy: row.cells[6].textContent.trim(),
+              group: row.cells[2].textContent.trim(),
+              note: row.cells[7].textContent.trim(),
+            };
+
+            // Lưu data vào row để dễ truy cập sau này
+            row.dataset.account = JSON.stringify(accountData);
+            selectedAccounts.push(accountData);
+          }
+        });
+
+        return selectedAccounts;
+      }
+
+      // Hàm cập nhật trạng thái tài khoản
+      function updateAccountStatus(accountId, status, newCookie = "") {
+        const rows = accountsTableBody.getElementsByTagName("tr");
+        for (let row of rows) {
+          const rowData = JSON.parse(row.dataset.account || "{}");
+          if (rowData.user === accountId) {
+            // Update status cell
+            const statusCell = row.cells[8];
+            statusCell.textContent = status;
+
+            // Remove existing status classes
+            statusCell.classList.remove(
+              "text-green-500",
+              "text-red-500",
+              "text-yellow-500"
+            );
+
+            // Add new status class based on status
+            if (status === "Login Successfully") {
+              statusCell.classList.add("text-green-500");
+              // Update cookie if provided
+              if (newCookie) {
+                const cookieCell = row.cells[5];
+                const cookieSpan = cookieCell.querySelector("span");
+                if (cookieSpan) {
+                  cookieSpan.textContent = shortenCookie(newCookie);
+                  cookieSpan.title = newCookie;
+                }
+                cookieCell.setAttribute("data-fullcookie", newCookie);
+                rowData.cookie = newCookie;
+                row.dataset.account = JSON.stringify(rowData);
+              }
+            } else if (
+              status.startsWith("Lỗi") ||
+              status === "Cookie không hợp lệ" ||
+              status === "Kiểm tra thất bại"
+            ) {
+              statusCell.classList.add("text-red-500");
+            } else {
+              statusCell.classList.add("text-yellow-500");
+            }
+            break;
+          }
+        }
+      }
+
+      // Event listener cho nút Run
+      document
+        .getElementById("Run_nuoi_clone")
+        .addEventListener("click", () => {
+          // Lấy dữ liệu từ treeview
+          const selectedAccounts = getTreeviewData();
+
+          if (selectedAccounts.length === 0) {
+            alert("Vui lòng chọn ít nhất một tài khoản!");
+            return;
+          }
+
+          // Lấy cấu hình đã chọn
+          const selectedConfig = document.getElementById("configSelect").value;
+          if (!selectedConfig) {
+            alert("Vui lòng chọn cấu hình!");
+            return;
+          }
+
+          // Cập nhật status tất cả tài khoản đã chọn thành "Đang xử lý"
+          selectedAccounts.forEach((account) => {
+            updateAccountStatus(account.user, "Đang xử lý");
+          });
+
+          // Gửi dữ liệu để xử lý
+          const runData = {
+            config: selectedConfig,
+            accounts: selectedAccounts,
+          };
+          console.log(runData);
+
+          // Gửi dữ liệu đến main process
+          ipcRenderer.send("run-interaction", runData);
+        });
+
+      // Lắng nghe cập nhật trạng thái từ main process
+      ipcRenderer.on("account-status-update", (event, data) => {
+        const { accountId, status, cookie, type } = data;
+        updateAccountStatus(accountId, status, cookie);
+      });
+
+      // Lắng nghe log từ quá trình xử lý
+      ipcRenderer.on("process-log", (event, data) => {
+        const { id, message, status } = data;
+        if (status) {
+          updateAccountStatus(id, message);
+        }
+        // Có thể thêm code hiển thị log ở đây nếu cần
+      });
+      // Gửi yêu cầu đến main process để lấy dữ liệu JSON
+      ipcRenderer.send("get-json-data");
+
+      // Lắng nghe phản hồi từ main process
+      ipcRenderer.on("json-data", (event, jsonData) => {
+        if (jsonData) {
+          console.log("Received JSON data:", jsonData);
+          displayJsonData(jsonData);
+        } else {
+          console.error("No JSON data received");
+        }
+      });
+
+      // Thêm biến toàn cục để lưu trữ dữ liệu JSON
+
+      document.getElementById("closeModal").addEventListener("click", () => {
+        actionModal.classList.add("hidden");
+      });
+
+      document.getElementById("submitAction").addEventListener("click", () => {
+        actionModal.classList.add("hidden");
+        const actionName = document.getElementById("actionName").value;
+
+        const option = document.createElement("option");
+        option.value = actionName;
+        option.textContent = actionName;
+        selectElement.appendChild(option);
+
+        // Gửi yêu cầu đến main process để lưu tên hành đ��ng
+        ipcRenderer.send("savename_action", actionName);
+      });
+      // Import the required modules and functions from Electron
+
+      document.getElementById("AddAction").addEventListener("click", () => {
+        actionModal.classList.remove("hidden");
+      });
+
+      document
+        .getElementById("OpenSettings")
+        .addEventListener("click", function () {
+          ipcRenderer.send("createAction");
+        });
+
+      // Fallback: Nếu IPC không hoạt động, thử đọc tệp trực tiếp
+    </script>
+  </body>
+</html>
